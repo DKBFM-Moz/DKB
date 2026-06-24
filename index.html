@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DKBFM — Strategic IT Infrastructure</title>
+  <meta name="description" content="Заказная разработка сайтов под ключ, IT-консалтинг и развитие бизнеса, Комплексное SEO продвижение." />
+
+  <!-- Google Fonts: Anton for impact headings, Inter for body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- GSAP + ScrollTrigger CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            anton: ['Anton', 'sans-serif'],
+            inter: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            'acid-green': '#B5FF47',
+            'neon-coral': '#FF5733',
+            'neon-orange': '#FF6B00',
+            'vault-black': '#0A0A0A',
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-family: 'Inter', sans-serif; }
+
+    /* ───── SCROLLBAR ───── */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: #0A0A0A; }
+    ::-webkit-scrollbar-thumb { background: #B5FF47; border-radius: 2px; }
+
+    /* ───── NAV ───── */
+    #nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      mix-blend-mode: difference;
+    }
+
+    /* ───── HERO ───── */
+    #hero {
+      min-height: 100vh;
+      background: #000;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Dark vignette overlay sits between layers and grain ── */
+    #hero::after {
+      content: '';
+      position: absolute; inset: 0; z-index: 4;
+      background: rgba(0, 0, 0, 0.25);
+      pointer-events: none;
+    }
+
+    /* ── Animated grain sits on top ── */
+    #hero::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 5;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+      pointer-events: none;
+      opacity: 0.22;
+    }
+
+    /* ───── HERO SCENE / 3D TILT ───── */
+
+    /* Perspective root — holds the image layer */
+    #hero-scene {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      perspective: 1000px;
+    }
+
+    /* Oversized wrapper so tilt never reveals black edges */
+    #hero-img-wrap {
+      position: absolute;
+      inset: -6%;
+      will-change: transform;
+      transform-origin: center center;
+    }
+
+    #hero-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+    }
+
+    /* Text layer floats above image, handles its own 3D tilt */
+    .layer-text {
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 1rem;
+      will-change: transform;
+      pointer-events: none;
+    }
+
+    /* massive headline clip */
+    .clip-reveal { overflow: hidden; }
+
+    /* ───── MARQUEE ───── */
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marquee 18s linear infinite;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ───── MANIFESTO ───── */
+    #manifesto {
+      background: #0D0D0D;
+      color: #E8E8E8;
+    }
+
+    /* ───── EXPERTISE ───── */
+    #expertise {
+      background: #F2F0EB;
+      color: #0D0D0D;
+    }
+    .expertise-item {
+      border-top: 1px solid rgba(13,13,13,0.2);
+      transition: background 0.35s ease;
+    }
+    .expertise-item:hover { background: #B5FF47; }
+    .expertise-item:hover .item-arrow { transform: translate(4px,-4px); }
+    .item-arrow { transition: transform 0.3s ease; }
+
+    /* ───── VAULT ───── */
+    #vault {
+      background: #0A0A0A;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    #vault::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 20% 50%, rgba(181,255,71,0.06) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 50%, rgba(255,107,0,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .stat-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+      transition: border-color 0.3s ease, background 0.3s ease;
+    }
+    .stat-card:hover {
+      border-color: #B5FF47;
+      background: rgba(181,255,71,0.04);
+    }
+    .stat-number {
+      font-family: 'Anton', sans-serif;
+      color: #B5FF47;
+      line-height: 1;
+    }
+
+    /* ───── FOOTER ───── */
+    #footer {
+      background: #0D0D0D;
+      color: #fff;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .cta-link {
+      display: inline-block;
+      position: relative;
+      color: #B5FF47;
+      text-decoration: none;
+    }
+    .cta-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0; right: 0;
+      height: 1px;
+      background: #B5FF47;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    .cta-link:hover::after { transform: scaleX(1); }
+
+    /* ───── GSAP INIT STATES ───── */
+    .fade-up { opacity: 0; transform: translateY(60px); }
+    .fade-in { opacity: 0; }
+    .scale-in { opacity: 0; transform: scale(0.92); }
+
+    /* ───── SOCIAL LINKS ───── */
+    .social-icon-wrap {
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .social-link:hover .social-icon-wrap {
+      background: rgba(181, 255, 71, 0.07);
+    }
+    .social-link {
+      transform: translateY(0);
+      transition: color 0.3s ease, transform 0.3s ease;
+    }
+    .social-link:hover { transform: translateY(-2px); }
+
+    /* ───── CURSOR DOT ───── */
+    #cursor {
+      width: 10px; height: 10px;
+      background: #B5FF47;
+      border-radius: 50%;
+      position: fixed; pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width .2s, height .2s, opacity .2s;
+      mix-blend-mode: difference;
+    }
+    #cursor.expand { width: 48px; height: 48px; opacity: 0.6; }
+  </style>
+</head>
+
+<body class="bg-black overflow-x-hidden">
+
+  <!-- CURSOR -->
+  <div id="cursor"></div>
+
+  <!-- ══════════════════════════════════════════════════
+       NAV
+  ══════════════════════════════════════════════════ -->
+  <nav id="nav" class="px-6 md:px-10 py-5 flex items-center justify-between">
+    <a href="#hero" class="font-anton text-white text-2xl tracking-widest select-none" style="letter-spacing:.35em;">DKBFM</a>
+    <div class="flex items-center gap-8">
+      <a href="#manifesto" class="font-inter text-white text-xs tracking-widest uppercase opacity-70 hover:opacity-100 transition-opacity hidden md:block" style="letter-spacing:.2em;">Approach</a>
+      <a href="#expertise" class="font-inter text-white text-xs tracking-widest uppercase opacity-70 hover:opacity-100 transition-opacity hidden md:block" style="letter-spacing:.2em;">Services</a>
+      <a href="#footer" class="font-inter text-xs tracking-widest uppercase border border-white text-white px-4 py-2 hover:bg-white hover:text-black transition-colors" style="letter-spacing:.18em;">Contact</a>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════
+       SECTION 1 — HERO (3D Mouse Parallax)
+  ══════════════════════════════════════════════════ -->
+  <section id="hero">
+
+    <!-- ── HERO SCENE: Full-screen image with perspective + 3D tilt ── -->
+    <div id="hero-scene">
+      <div id="hero-img-wrap">
+        <img
+          src="https://static.prod-images.emergentagent.com/jobs/bb075ca7-7e51-47d3-ab53-1beed59aef45/images/860a9fc47d7dac49af239659d0ba8b79937f57ac000847cbce531f813e334a81.png"
+          alt="Strategic IT Background"
+          loading="eager"
+        />
+      </div>
+    </div>
+
+    <!-- ── TEXT LAYER: overlay-blended STRATEGIC IT + sub-tagline ── -->
+    <div class="layer-text select-none" id="parallax-text">
+
+      <!-- Overlay blend wraps only the big headlines -->
+      <div id="hero-headlines" style="mix-blend-mode: overlay; text-align: center;">
+        <!-- Line 1 -->
+        <div class="clip-reveal overflow-hidden">
+          <h1 id="hero-line-1"
+              class="font-anton text-[18vw] md:text-[16vw] leading-none uppercase tracking-tight text-white"
+              style="line-height:.9;">
+            STRATEGIC
+          </h1>
+        </div>
+        <!-- Line 2 -->
+        <div class="clip-reveal overflow-hidden">
+          <h1 id="hero-line-2"
+              class="font-anton text-[18vw] md:text-[16vw] leading-none uppercase tracking-tight text-white"
+              style="line-height:.88;">
+            IT
+          </h1>
+        </div>
+      </div>
+
+      <!-- Sub-tagline (normal blend, slightly transparent) -->
+      <div id="hero-sub" class="mt-8 md:mt-10 fade-in">
+        <p class="font-inter text-sm md:text-base font-medium tracking-[.22em] uppercase text-white/75 max-w-sm"
+           style="text-shadow: 0 1px 8px rgba(0,0,0,0.6);">
+          Digital Infrastructure &amp; Business Architecture
+        </p>
+      </div>
+
+    </div>
+
+    <!-- ── LAYER 10: Bottom strip (marquee + scroll hint) ── -->
+    <div class="relative z-10 mt-auto pb-8">
+      <!-- Marquee -->
+      <div class="overflow-hidden border-t border-b border-white/15 py-3 mb-8">
+        <div class="marquee-track text-white/30 font-inter text-xs tracking-[.3em] uppercase select-none">
+          <span class="px-8">Strategic IT</span>
+          <span class="px-8">·</span>
+          <span class="px-8">Business Automation</span>
+          <span class="px-8">·</span>
+          <span class="px-8">Custom Development</span>
+          <span class="px-8">·</span>
+          <span class="px-8">Digital Presence</span>
+          <span class="px-8">·</span>
+          <span class="px-8">FinTech Architecture</span>
+          <span class="px-8">·</span>
+          <span class="px-8">SEO &amp; Growth</span>
+          <span class="px-8">·</span>
+          <!-- duplicate for seamless loop -->
+          <span class="px-8">Strategic IT</span>
+          <span class="px-8">·</span>
+          <span class="px-8">Business Automation</span>
+          <span class="px-8">·</span>
+          <span class="px-8">Custom Development</span>
+          <span class="px-8">·</span>
+          <span class="px-8">Digital Presence</span>
+          <span class="px-8">·</span>
+          <span class="px-8">FinTech Architecture</span>
+          <span class="px-8">·</span>
+          <span class="px-8">SEO &amp; Growth</span>
+          <span class="px-8">·</span>
+        </div>
+      </div>
+
+      <div id="hero-scroll-hint" class="fade-in flex items-center gap-3 px-6 md:px-10">
+        <div class="w-px h-12 bg-white/30" style="animation: pulse-height 2s ease-in-out infinite;"></div>
+        <span class="font-inter text-xs tracking-[.25em] uppercase text-white/40">Scroll</span>
+      </div>
+    </div>
+
+    <style>
+      @keyframes pulse-height {
+        0%,100% { opacity:.3; transform:scaleY(1); }
+        50%      { opacity:.8; transform:scaleY(1.3); }
+      }
+    </style>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       SECTION 2 — MANIFESTO
+  ══════════════════════════════════════════════════ -->
+  <section id="manifesto" class="py-24 md:py-40 px-6 md:px-10 lg:px-20">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- Label -->
+      <div id="man-label" class="fade-up mb-12 md:mb-16 flex items-center gap-4">
+        <div class="w-8 h-px bg-acid-green"></div>
+        <span class="font-inter text-xs tracking-[.35em] uppercase text-acid-green/70">Manifesto</span>
+      </div>
+
+      <!-- Main quote -->
+      <blockquote id="man-quote" class="fade-up">
+        <p class="font-inter font-black text-[7vw] md:text-[4.5vw] lg:text-[3.8vw] leading-[1.12] tracking-tight text-white">
+          Мы не ищем клиентов<br class="hidden md:block"/>
+          <span class="text-acid-green">на сайты.</span>
+        </p>
+        <p class="font-inter font-black text-[7vw] md:text-[4.5vw] lg:text-[3.8vw] leading-[1.12] tracking-tight text-white/40 mt-4 md:mt-6">
+          Мы строим цифровые инфраструктуры<br class="hidden md:block"/>
+          и бизнес-процессы.
+        </p>
+      </blockquote>
+
+      <!-- Body text -->
+      <div id="man-body" class="fade-up mt-12 md:mt-16 grid md:grid-cols-2 gap-8 md:gap-16">
+        <div class="border-l border-white/10 pl-6">
+          <p class="font-inter text-lg md:text-xl font-medium leading-relaxed text-white/50">
+            Если вам нужен просто лендинг —<br/>
+            <span class="text-white/80">вы ошиблись адресом.</span>
+          </p>
+        </div>
+        <div class="border-l border-acid-green/30 pl-6">
+          <p class="font-inter text-lg md:text-xl font-medium leading-relaxed text-white/50">
+            Если вам нужно решение, которое<br/>
+            <span class="text-acid-green font-semibold">масштабирует бизнес</span>
+            <span class="text-white/80"> — давайте поговорим.</span>
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       SECTION 3 — EXPERTISE
+  ══════════════════════════════════════════════════ -->
+  <section id="expertise" class="py-24 md:py-40 px-6 md:px-10 lg:px-20">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- Section header -->
+      <div id="exp-header" class="fade-up mb-16 md:mb-24 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div>
+          <span class="font-inter text-xs tracking-[.35em] uppercase text-black/30 block mb-4">Services</span>
+          <h2 class="font-anton text-[11vw] md:text-[7vw] leading-none uppercase tracking-tight text-black">
+            What We<br/>Build
+          </h2>
+        </div>
+        <p class="font-inter text-sm text-black/50 max-w-xs leading-relaxed md:text-right">
+          Three pillars. Zero fluff.<br/>
+          All infrastructure-grade.
+        </p>
+      </div>
+
+      <!-- Grid items -->
+      <div class="border-b border-black/15">
+
+        <!-- 01 -->
+        <a href="#footer" class="expertise-item block py-10 md:py-14 px-0 group cursor-pointer fade-up">
+          <div class="flex items-start md:items-center justify-between gap-6">
+            <div class="flex items-start md:items-center gap-6 md:gap-10">
+              <span class="font-inter text-xs tracking-widest text-black/30 uppercase mt-1 md:mt-0 shrink-0">01</span>
+              <div>
+                <h3 class="font-inter font-black text-2xl md:text-4xl lg:text-5xl leading-tight tracking-tight text-black">
+                  Business Development<br class="md:hidden"/> &amp; Automation
+                </h3>
+                <p class="font-inter text-sm text-black/40 mt-2 max-w-lg hidden md:block">
+                  End-to-end process design, CRM architecture, workflow automation, KPI systems.
+                </p>
+              </div>
+            </div>
+            <span class="item-arrow font-inter text-2xl md:text-3xl text-black/25 shrink-0 mt-1 md:mt-0">↗</span>
+          </div>
+        </a>
+
+        <!-- 02 -->
+        <a href="#footer" class="expertise-item block py-10 md:py-14 px-0 group cursor-pointer fade-up">
+          <div class="flex items-start md:items-center justify-between gap-6">
+            <div class="flex items-start md:items-center gap-6 md:gap-10">
+              <span class="font-inter text-xs tracking-widest text-black/30 uppercase mt-1 md:mt-0 shrink-0">02</span>
+              <div>
+                <h3 class="font-inter font-black text-2xl md:text-4xl lg:text-5xl leading-tight tracking-tight text-black">
+                  High-End Custom<br class="md:hidden"/> Development
+                </h3>
+                <p class="font-inter text-sm text-black/40 mt-2 max-w-lg hidden md:block">
+                  FinTech, e-commerce, SaaS. From architecture to deployment. No templates.
+                </p>
+              </div>
+            </div>
+            <span class="item-arrow font-inter text-2xl md:text-3xl text-black/25 shrink-0 mt-1 md:mt-0">↗</span>
+          </div>
+        </a>
+
+        <!-- 03 -->
+        <a href="#footer" class="expertise-item block py-10 md:py-14 px-0 group cursor-pointer fade-up">
+          <div class="flex items-start md:items-center justify-between gap-6">
+            <div class="flex items-start md:items-center gap-6 md:gap-10">
+              <span class="font-inter text-xs tracking-widest text-black/30 uppercase mt-1 md:mt-0 shrink-0">03</span>
+              <div>
+                <h3 class="font-inter font-black text-2xl md:text-4xl lg:text-5xl leading-tight tracking-tight text-black">
+                  Digital Presence<br class="md:hidden"/> &amp; SEO
+                </h3>
+                <p class="font-inter text-sm text-black/40 mt-2 max-w-lg hidden md:block">
+                  Technical SEO, content architecture, performance, authority building.
+                </p>
+              </div>
+            </div>
+            <span class="item-arrow font-inter text-2xl md:text-3xl text-black/25 shrink-0 mt-1 md:mt-0">↗</span>
+          </div>
+        </a>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       SECTION 4 — THE VAULT
+  ══════════════════════════════════════════════════ -->
+  <section id="vault" class="py-24 md:py-40 px-6 md:px-10 lg:px-20">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- Header -->
+      <div id="vault-header" class="fade-up mb-16 md:mb-24 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div>
+          <span class="font-inter text-xs tracking-[.35em] uppercase text-white/20 block mb-4">Track Record</span>
+          <h2 class="font-anton text-[11vw] md:text-[7vw] leading-none uppercase text-white">
+            The<br/>Vault
+          </h2>
+        </div>
+        <p class="font-inter text-sm text-white/30 max-w-xs leading-relaxed md:text-right">
+          Numbers don't negotiate.<br/>
+          Results do.
+        </p>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="grid md:grid-cols-2 gap-4 md:gap-6">
+
+        <!-- Card 1 -->
+        <div id="vault-card-1" class="stat-card scale-in p-8 md:p-12">
+          <div class="flex flex-col gap-6 h-full">
+            <span class="font-inter text-xs tracking-[.3em] uppercase text-white/25">FinTech / Architecture</span>
+            <p class="stat-number text-5xl md:text-6xl lg:text-7xl">+$2M</p>
+            <div class="mt-auto">
+              <p class="font-inter text-lg md:text-xl font-semibold text-white leading-snug">
+                Архитектура FinTech продукта
+              </p>
+              <p class="font-inter text-sm text-white/35 mt-2 leading-relaxed">
+                +$2M оценка за год — от MVP до ранда Series A.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div id="vault-card-2" class="stat-card scale-in p-8 md:p-12">
+          <div class="flex flex-col gap-6 h-full">
+            <span class="font-inter text-xs tracking-[.3em] uppercase text-white/25">E-commerce / Infrastructure</span>
+            <p class="stat-number text-5xl md:text-6xl lg:text-7xl">10×</p>
+            <div class="mt-auto">
+              <p class="font-inter text-lg md:text-xl font-semibold text-white leading-snug">
+                E-commerce инфраструктура
+              </p>
+              <p class="font-inter text-sm text-white/35 mt-2 leading-relaxed">
+                10x рост конверсии — полная перестройка воронки и стека.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wide card -->
+        <div id="vault-card-3" class="stat-card scale-in p-8 md:p-12 md:col-span-2">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <span class="font-inter text-xs tracking-[.3em] uppercase text-white/25 block mb-4">Approach</span>
+              <p class="font-inter font-black text-2xl md:text-3xl lg:text-4xl text-white leading-snug max-w-2xl">
+                "We architect first.<br/>
+                <span class="text-white/35">We ship second.</span><br/>
+                We scale third."
+              </p>
+            </div>
+            <div class="shrink-0">
+              <a href="#footer" class="inline-flex items-center gap-3 border border-acid-green text-acid-green font-inter font-semibold text-sm tracking-widest uppercase px-6 py-4 hover:bg-acid-green hover:text-black transition-colors">
+                Start a Project
+                <span>→</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       SECTION 5 — FOOTER / CONTACT
+  ══════════════════════════════════════════════════ -->
+  <footer id="footer" class="py-24 md:py-40 px-6 md:px-10 lg:px-20">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- CTA headline -->
+      <div id="footer-cta" class="fade-up mb-16 md:mb-24">
+        <p class="font-inter text-xs tracking-[.35em] uppercase text-white/20 mb-8">Contact</p>
+        <h2 class="font-anton text-[10vw] md:text-[8vw] leading-none uppercase text-white mb-6">
+          Ready to<br/>Escalate?
+        </h2>
+        <p class="font-inter text-lg md:text-xl text-white/40 max-w-lg leading-relaxed">
+          Pitch your project. We'll tell you within 48 hours<br/>
+          if it's something we can scale together.
+        </p>
+      </div>
+
+      <!-- Email link + Social links -->
+      <div id="footer-email" class="fade-up mb-20 md:mb-32">
+        <a href="mailto:founder@dkbfm.com" class="cta-link font-inter font-black text-[6vw] md:text-[4vw] lg:text-[3.5vw] leading-none">
+          founder@dkbfm.com
+        </a>
+
+        <!-- Social icons -->
+        <div class="flex items-center gap-5 mt-10">
+
+          <!-- LinkedIn -->
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"
+             aria-label="LinkedIn"
+             class="social-link group flex items-center gap-3 text-white/25 hover:text-acid-green transition-colors duration-300">
+            <span class="social-icon-wrap flex items-center justify-center w-10 h-10 border border-white/10 group-hover:border-acid-green transition-colors duration-300">
+              <!-- LinkedIn SVG -->
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.25 8.5h4.5V24H.25V8.5zM8.5 8.5h4.3v2.1h.06c.6-1.14 2.07-2.34 4.26-2.34 4.56 0 5.4 3 5.4 6.88V24h-4.5v-7.97c0-1.9-.03-4.34-2.64-4.34-2.64 0-3.04 2.06-3.04 4.2V24H8.5V8.5z"/>
+              </svg>
+            </span>
+            <span class="font-inter text-xs tracking-[.2em] uppercase hidden sm:block">LinkedIn</span>
+          </a>
+
+          <!-- Divider dot -->
+          <span class="text-white/10 text-xs select-none">·</span>
+
+          <!-- Telegram -->
+          <a href="https://t.me/dkbfm" target="_blank" rel="noopener noreferrer"
+             aria-label="Telegram"
+             class="social-link group flex items-center gap-3 text-white/25 hover:text-acid-green transition-colors duration-300">
+            <span class="social-icon-wrap flex items-center justify-center w-10 h-10 border border-white/10 group-hover:border-acid-green transition-colors duration-300">
+              <!-- Telegram SVG -->
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm5.88 8.18-1.97 9.28c-.15.66-.53.82-1.07.51l-2.97-2.19-1.43 1.38c-.16.16-.29.29-.59.29l.21-3.02 5.48-4.95c.24-.21-.05-.33-.37-.12L7.08 14.46l-2.92-.91c-.63-.2-.64-.63.13-.93l11.39-4.39c.53-.19.99.13.2.95z"/>
+              </svg>
+            </span>
+            <span class="font-inter text-xs tracking-[.2em] uppercase hidden sm:block">Telegram</span>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- Bottom bar -->
+      <div id="footer-bottom" class="fade-up border-t border-white/08 pt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+
+        <div class="flex items-center gap-3">
+          <span class="font-anton text-white text-lg tracking-widest" style="letter-spacing:.3em;">DKBFM</span>
+          <span class="text-white/20 text-xs">©&nbsp;2025</span>
+        </div>
+
+        <!-- SEO links -->
+        <nav aria-label="SEO">
+          <ul class="flex flex-wrap gap-x-6 gap-y-2">
+            <li>
+              <a href="#expertise" class="font-inter text-xs text-white/25 hover:text-white/60 transition-colors">
+                Заказная разработка сайтов под ключ
+              </a>
+            </li>
+            <li>
+              <a href="#expertise" class="font-inter text-xs text-white/25 hover:text-white/60 transition-colors">
+                IT-консалтинг и развитие бизнеса
+              </a>
+            </li>
+            <li>
+              <a href="#expertise" class="font-inter text-xs text-white/25 hover:text-white/60 transition-colors">
+                Комплексное SEO продвижение
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ══════════════════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════════════════ -->
+  <script>
+  (function() {
+    /* ─── Custom cursor ─── */
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
+    });
+    document.querySelectorAll('a, button, .expertise-item').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('expand'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('expand'));
+    });
+
+    /* ─── GSAP setup ─── */
+    gsap.registerPlugin(ScrollTrigger);
+
+    /* ─── Hero headline entrance (clip-reveal slide-up) ─── */
+    gsap.from('#hero-line-1', {
+      yPercent: 105, opacity: 0, duration: 1.1, ease: 'expo.out', delay: 0.15
+    });
+    gsap.from('#hero-line-2', {
+      yPercent: 105, opacity: 0, duration: 1.1, ease: 'expo.out', delay: 0.32
+    });
+    gsap.to('#hero-sub', {
+      opacity: 1, duration: 0.9, ease: 'power2.out', delay: 0.7
+    });
+    gsap.to('#hero-scroll-hint', {
+      opacity: 1, duration: 0.8, ease: 'power2.out', delay: 1.0
+    });
+
+    /* ═══════════════════════════════════════════════════
+       PREMIUM 3D TILT / BREATHE EFFECT
+       Image tilts WITH the mouse; text tilts OPPOSITE.
+       A continuous breathing scale keeps the scene alive.
+    ═══════════════════════════════════════════════════ */
+    const heroImgWrap  = document.getElementById('hero-img-wrap');
+    const parallaxText = document.getElementById('parallax-text');
+
+    // Give the text element its own perspective context
+    gsap.set(parallaxText, { transformPerspective: 1000 });
+
+    // Seed the image at the lower breathing scale
+    gsap.set(heroImgWrap, { scale: 1.05 });
+
+    // Continuous breathing: scale oscillates 1.05 ↔ 1.10
+    // GSAP 3 stores transform props independently, so x/y/rotateX/Y
+    // set inside the ticker below will NOT stomp this scale tween.
+    gsap.to(heroImgWrap, {
+      scale: 1.10,
+      duration: 5,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1,
+    });
+
+    // Smoothing variables
+    let targetX = 0, targetY = 0;
+    let currentX = 0, currentY = 0;
+
+    // Only track mouse while over the hero
+    const heroEl = document.getElementById('hero');
+    heroEl.addEventListener('mousemove', (e) => {
+      // Normalize -1 … +1 from centre of hero
+      const r = heroEl.getBoundingClientRect();
+      targetX = ((e.clientX - r.left)  / r.width  - 0.5) * 2;
+      targetY = ((e.clientY - r.top)   / r.height - 0.5) * 2;
+    });
+    heroEl.addEventListener('mouseleave', () => {
+      // Ease back to neutral
+      targetX = 0;
+      targetY = 0;
+    });
+
+    // Smooth animation loop
+    gsap.ticker.add(() => {
+      // Lerp — gentle lag for cinematic feel
+      currentX += (targetX - currentX) * 0.05;
+      currentY += (targetY - currentY) * 0.05;
+
+      // +/- 3° rotation, +/- 15px translation
+      const rotY =  currentX * 3;
+      const rotX = -currentY * 3;   // invert: mouse-up → tilt back
+      const tx   =  currentX * 15;
+      const ty   =  currentY * 10;
+
+      // Image: tilts WITH the mouse (the scene "follows" your gaze)
+      gsap.set(heroImgWrap, {
+        rotateX: rotX,
+        rotateY: rotY,
+        x: tx,
+        y: ty,
+      });
+
+      // Text: tilts in the OPPOSITE direction (parallax depth split)
+      gsap.set(parallaxText, {
+        rotateX: -rotX * 0.55,
+        rotateY: -rotY * 0.55,
+        x: -tx * 0.7,
+        y: -ty * 0.7,
+      });
+    });
+
+    /* ─── Reusable scroll fade-up ─── */
+    function fadeUp(selector, stagger) {
+      const els = document.querySelectorAll(selector);
+      if (!els.length) return;
+      ScrollTrigger.batch(selector, {
+        onEnter: batch => {
+          gsap.to(batch, {
+            opacity: 1,
+            y: 0,
+            stagger: stagger || 0.12,
+            duration: 0.85,
+            ease: 'power3.out',
+          });
+        },
+        start: 'top 88%',
+      });
+    }
+
+    /* ─── Manifesto ─── */
+    fadeUp('#man-label', 0);
+    fadeUp('#man-quote', 0);
+    fadeUp('#man-body', 0);
+
+    /* ─── Expertise ─── */
+    fadeUp('#exp-header', 0);
+    fadeUp('.expertise-item', 0.1);
+
+    /* ─── Vault ─── */
+    fadeUp('#vault-header', 0);
+    ScrollTrigger.batch('.scale-in', {
+      onEnter: batch => {
+        gsap.to(batch, {
+          opacity: 1, scale: 1,
+          stagger: 0.12,
+          duration: 0.75,
+          ease: 'back.out(1.4)',
+        });
+      },
+      start: 'top 85%',
+    });
+
+    /* ─── Footer ─── */
+    fadeUp('#footer-cta', 0);
+    fadeUp('#footer-email', 0);
+    fadeUp('#footer-bottom', 0);
+
+    /* ─── Nav bg on scroll ─── */
+    ScrollTrigger.create({
+      start: 'top -80',
+      onUpdate: self => {
+        const nav = document.getElementById('nav');
+        if (self.direction === 1) {
+          nav.style.mixBlendMode = 'normal';
+          nav.style.background = 'rgba(10,10,10,0.85)';
+          nav.style.backdropFilter = 'blur(12px)';
+          nav.style.webkitBackdropFilter = 'blur(12px)';
+        } else if (window.scrollY < 80) {
+          nav.style.mixBlendMode = 'difference';
+          nav.style.background = 'transparent';
+          nav.style.backdropFilter = 'none';
+        }
+      }
+    });
+
+  })();
+  </script>
+
+</body>
+</html>
