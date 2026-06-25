@@ -1,0 +1,18 @@
+# DKBFM
+
+> High-end custom web development and technical SEO studio.
+
+DKBFM builds custom-engineered websites and handles technical SEO end to end — search architecture, performance, and digital presence. No site builders, no templates. The studio works on a project-by-project basis and selects engagements rather than running an open sales funnel.
+
+## Services
+- High-end custom web development (no templates, no site builders)
+- Technical SEO & search architecture
+- Digital presence & performance optimization
+
+## Contact
+- Email: founder@dkbfm.com
+- Telegram: https://t.me/harinsky
+- LinkedIn: https://www.linkedin.com/in/gtatarnikov
+
+## Notes for crawlers
+This is a single-page site (https://dkbfm.com/). All content lives on the homepage; there are no additional indexable pages at this time.
