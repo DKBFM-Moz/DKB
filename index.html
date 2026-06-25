@@ -951,18 +951,19 @@
   centerer.position.set(-center.x, -center.y, -center.z);
 
   // ── Adaptive fit: desktop keeps the original hand-tuned scale (12.5).
-  // On narrow (portrait/mobile) viewports we want the mesh large — nearly
-  // filling the vertical frame behind the headline. The object's bounding
-  // box is wider than it is tall, so sizing against the visible HEIGHT
-  // (not width) lets it stay big top-to-bottom while its sides simply run
-  // past the screen edges, same as the desktop composition. ──
+  // On narrow (portrait/mobile) viewports we fit the WHOLE mesh inside the
+  // screen by sizing its largest dimension against whichever visible axis is
+  // tighter (width on a phone). This guarantees it never overflows, and the
+  // coverage fraction controls how big it sits. ──
   function computeFit() {
     const aspect = mount.clientWidth / mount.clientHeight;
     const isNarrow = aspect < 0.8; // portrait / mobile
     if (!isNarrow) return 12.5 / Math.max(size.x, size.y);
-    const targetHeightFraction = 0.90; // mesh height as a fraction of visible height
+    const coverage = 0.95; // how much of the tighter axis the mesh may occupy
     const vFovH = 2 * Math.tan((camera.fov * Math.PI / 180) / 2) * camera.position.z;
-    return (targetHeightFraction * vFovH) / size.y;
+    const vFovW = vFovH * aspect;
+    const visibleMin = Math.min(vFovW, vFovH);
+    return (visibleMin * coverage) / Math.max(size.x, size.y);
   }
 
   pivot.scale.setScalar(computeFit());
