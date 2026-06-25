@@ -949,8 +949,23 @@
   const size = new THREE.Vector3(); box.getSize(size);
   const center = new THREE.Vector3(); box.getCenter(center);
   centerer.position.set(-center.x, -center.y, -center.z);
-  const fit = 12.5 / Math.max(size.x, size.y);
-  pivot.scale.setScalar(fit);
+
+  // ── Adaptive fit: desktop keeps the original hand-tuned scale (12.5).
+  // Narrow (portrait/mobile) viewports are constrained by width, not height,
+  // so the same constant makes the mesh balloon past the screen edges and
+  // cover the headline — for those we compute a scale against the actual
+  // visible width so the object sits behind the text instead of over it. ──
+  function computeFit() {
+    const aspect = mount.clientWidth / mount.clientHeight;
+    const isNarrow = aspect < 0.8; // portrait / mobile
+    if (!isNarrow) return 12.5 / Math.max(size.x, size.y);
+    const margin = 0.55; // fraction of visible width the mesh may occupy
+    const vFovH = 2 * Math.tan((camera.fov * Math.PI / 180) / 2) * camera.position.z;
+    const vFovW = vFovH * aspect;
+    return (vFovW * margin) / Math.max(size.x, size.y);
+  }
+
+  pivot.scale.setScalar(computeFit());
 
   // mouse reaction (read from hero element)
   let tRX=0, tRY=0, cRX=0, cRY=0;
@@ -979,6 +994,7 @@
     const w = mount.clientWidth, h = mount.clientHeight;
     camera.aspect = w/h; camera.updateProjectionMatrix();
     renderer.setSize(w, h);
+    pivot.scale.setScalar(computeFit());
   });
   </script>
 </body>
